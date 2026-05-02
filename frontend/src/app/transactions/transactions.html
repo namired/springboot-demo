@@ -1,0 +1,72 @@
+<div class="page">
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <span class="logo-icon">💳</span>
+        <span class="logo-text">BankVision</span>
+      </div>
+      <nav class="nav">
+        <a class="nav-link" routerLink="/">Dashboard</a>
+        <a class="nav-link active">Transactions</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="page-title">
+      <h1>All Transactions</h1>
+      <p>{{ filtered.length }} of {{ transactions.length }} records</p>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <input class="search-input" type="text" placeholder="Search description or category..." (input)="filter($event)" />
+        <div class="type-filters">
+          <button class="filter-btn" [class.active]="selectedType === 'ALL'"    (click)="filterByType('ALL')">All</button>
+          <button class="filter-btn credit" [class.active]="selectedType === 'CREDIT'" (click)="filterByType('CREDIT')">Income</button>
+          <button class="filter-btn debit"  [class.active]="selectedType === 'DEBIT'"  (click)="filterByType('DEBIT')">Expenses</button>
+        </div>
+      </div>
+
+      @if (loading) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+        </div>
+      } @else {
+        <table class="tx-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Type</th>
+              <th class="amount-col">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (tx of filtered; track tx.id) {
+              <tr>
+                <td class="date-cell">{{ tx.transactionDate | date:'MMM d, y' }}</td>
+                <td>{{ tx.description }}</td>
+                <td><span class="category-badge">{{ tx.category }}</span></td>
+                <td>
+                  <span class="type-badge" [class.debit]="tx.type === 'DEBIT'" [class.credit]="tx.type === 'CREDIT'">
+                    {{ tx.type === 'DEBIT' ? 'Expense' : 'Income' }}
+                  </span>
+                </td>
+                <td class="amount-col" [class.debit-amount]="tx.type === 'DEBIT'" [class.credit-amount]="tx.type === 'CREDIT'">
+                  {{ tx.type === 'DEBIT' ? '-' : '+' }}{{ tx.amount | currency }}
+                </td>
+              </tr>
+            }
+            @empty {
+              <tr>
+                <td colspan="5" class="empty-row">No transactions match your filter.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </main>
+</div>

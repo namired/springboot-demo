@@ -1,0 +1,126 @@
+<div class="dashboard">
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <span class="logo-icon">💳</span>
+        <span class="logo-text">BankVision</span>
+      </div>
+      <nav class="nav">
+        <a class="nav-link active">Dashboard</a>
+        <a class="nav-link" routerLink="/transactions">Transactions</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="page-title">
+      <h1>Spending Overview</h1>
+      <p>January – April 2026</p>
+    </div>
+
+    @if (loading) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading your financial data...</p>
+      </div>
+    } @else if (error) {
+      <div class="error-banner">
+        <span>⚠️</span> {{ error }}
+      </div>
+    } @else {
+
+      <!-- Summary Cards -->
+      @if (summary) {
+        <div class="summary-grid">
+          <div class="card summary-card income">
+            <div class="card-icon">↑</div>
+            <div class="card-info">
+              <span class="card-label">Total Income</span>
+              <span class="card-value">{{ summary.totalIncome | currency }}</span>
+            </div>
+          </div>
+          <div class="card summary-card spent">
+            <div class="card-icon">↓</div>
+            <div class="card-info">
+              <span class="card-label">Total Spent</span>
+              <span class="card-value">{{ summary.totalSpent | currency }}</span>
+            </div>
+          </div>
+          <div class="card summary-card balance">
+            <div class="card-icon">◈</div>
+            <div class="card-info">
+              <span class="card-label">Balance</span>
+              <span class="card-value">{{ summary.balance | currency }}</span>
+            </div>
+          </div>
+          <div class="card summary-card transactions">
+            <div class="card-icon">#</div>
+            <div class="card-info">
+              <span class="card-label">Transactions</span>
+              <span class="card-value">{{ summary.totalTransactions }}</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Charts Row -->
+      <div class="charts-grid">
+        <div class="card chart-card">
+          <h2 class="chart-title">Spending by Category</h2>
+          <div class="chart-container doughnut-container">
+            <canvas baseChart
+              [data]="categoryChartData"
+              [options]="categoryChartOptions"
+              type="doughnut">
+            </canvas>
+          </div>
+        </div>
+
+        <div class="card chart-card">
+          <h2 class="chart-title">Monthly Spending</h2>
+          <div class="chart-container">
+            <canvas baseChart
+              [data]="monthlyChartData"
+              [options]="monthlyChartOptions"
+              type="bar">
+            </canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Transactions -->
+      <div class="card transactions-card">
+        <h2 class="chart-title">Recent Transactions</h2>
+        <table class="tx-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Type</th>
+              <th class="amount-col">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (tx of recentTransactions; track tx.id) {
+              <tr>
+                <td class="date-cell">{{ tx.transactionDate | date:'MMM d, y' }}</td>
+                <td>{{ tx.description }}</td>
+                <td><span class="category-badge">{{ tx.category }}</span></td>
+                <td>
+                  <span class="type-badge" [class.debit]="tx.type === 'DEBIT'" [class.credit]="tx.type === 'CREDIT'">
+                    {{ tx.type }}
+                  </span>
+                </td>
+                <td class="amount-col" [class.debit-amount]="tx.type === 'DEBIT'" [class.credit-amount]="tx.type === 'CREDIT'">
+                  {{ tx.type === 'DEBIT' ? '-' : '+' }}{{ tx.amount | currency }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+    }
+  </main>
+</div>
